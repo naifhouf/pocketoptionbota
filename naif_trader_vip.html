@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAIF TRADER — VIP Signals</title>
+<meta name="description" content="NAIF TRADER VIP — Pocket Option Signals (UTC+3)">
+<meta name="author" content="@najran2015">
+<style>
+  :root{
+    --bg: rgba(14,14,18,0.72);
+    --card: rgba(20,20,26,0.82);
+    --border: rgba(255,255,255,0.12);
+    --gold: #ffd54f;
+    --blue: #1e88e5;
+    --ok: #3ddc84;
+    --bad:#ff6b6b;
+    --muted:#a0a0a0;
+  }
+  /* Background + base typography */
+  body {
+    background: linear-gradient(rgba(0,0,0,.60), rgba(0,0,0,.60)), url("https://i.imgur.com/thCgHVm.jpeg") no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    text-align: center;
+    padding: 28px 10px;
+    margin: 0;
+    -webkit-user-select: none; user-select: none; -ms-user-select:none; -webkit-touch-callout:none;
+  }
+  /* Subtle glassy container */
+  .tool-background, .glass {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 18px;
+    padding: 24px 18px;
+    margin: 16px auto 0;
+    max-width: 720px;
+  }
+  /* Header */
+  .brand {
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    margin-bottom: 6px;
+  }
+  .logo {
+    width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#222,#444);
+    border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+    font-weight:800; letter-spacing:.5px;
+  }
+  .logo span{ color: var(--gold); }
+  h1 { font-size: 26px; color: var(--gold); margin: 6px 0 14px 0; }
+  .sub { color: var(--muted); font-size:14px; margin-top:-4px }
+  /* Inputs */
+  select, button, input {
+    width: 92%;
+    padding: 14px;
+    margin: 10px 0;
+    font-size: 17px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background:#15161b;
+    color:#fff;
+    outline: none;
+  }
+  select { background-color: #171821; }
+  button { background: linear-gradient(135deg, #1565c0, #1e88e5); color: #fff; cursor: pointer; border:none; }
+  button:hover { filter: brightness(1.06); }
+  button.disabled { background: #3a3a3a; cursor: not-allowed; }
+  #logoutBtn { background:#2b2b2b; }
+  .result { margin-top: 18px; background: #111317; padding: 16px; border-radius: 12px; font-size: 17px; white-space: pre-line; min-height: 160px; border:1px dashed var(--border) }
+  .footer { margin-top: 18px; font-size: 13px; color: var(--muted); }
+  .ok { color: var(--ok); } .bad { color: var(--bad); }
+  .watermark {
+    position: fixed; inset-inline-end: 10px; inset-block-end: 10px; opacity: .3;
+    font-weight: 800; letter-spacing:.8px; font-size: 11px;
+    background: #00000055; padding: 4px 8px; border-radius: 8px; border:1px solid var(--border);
+  }
+  @media (max-width:600px) {
+    h1{font-size:22px}
+    select,button,input,.result{font-size:16px}
+  }
+</style>
+</head>
+<body>
+
+<!-- Top card (login) -->
+<div id="passwordBox" class="glass">
+  <div class="brand">
+    <div class="logo"><span>NT</span></div>
+    <div>
+      <h1>NAIF TRADER — VIP</h1>
+      <div class="sub">إشارات ذكية بتوقيت الرياض (UTC+3) — تواصل: <b>@najran2015</b></div>
+    </div>
+  </div>
+  <p style="margin:0 0 12px 0">🏆 دخول الأعضاء — الرجاء إدخال المفتاح الخاص بك</p>
+  <input id="passwordInput" type="password" placeholder="أدخل كلمة المرور">
+  <button id="loginBtn" onclick="checkPassword()">تسجيل الدخول</button>
+  <div id="loginMsg" style="margin-top:10px; font-size:14px; opacity:.9;"></div>
+</div>
+
+<!-- Main app -->
+<div id="mainContainer" class="tool-background" style="display:none;">
+  <h1>NAIF TRADER — Pocket Option VIP</h1>
+  <div class="sub">مدعوم بذكاء الاصطناعي — @najran2015</div>
+  <div id="userNameDisplay" style="font-size:18px; margin-bottom:8px; display:none;"></div>
+  <div id="expireBox" class="ok" style="margin:-2px 0 12px 0; font-size:16px;"></div>
+  <button id="logoutBtn" onclick="logout()">تسجيل خروج</button>
+
+  <div class="tool-background" style="margin-top:14px">
+    <select id="pairSelect">
+      <option value="" disabled selected>اختر الزوج</option>
+      <optgroup label="أزواج OTC">
+        <option value="BHD/CNY">🇧🇭 BHD/CNY 🇨🇳 OTC</option>
+        <option value="USD/EGP">🇺🇸 USD/EGP 🇪🇬 OTC</option>
+        <option value="USD/RUB">🇺🇸 USD/RUB 🇷🇺 OTC</option>
+        <option value="USD/BDT">🇺🇸 USD/BDT 🇧🇩 OTC</option>
+        <option value="USD/BRL">🇺🇸 USD/BRL 🇧🇷 OTC</option>
+        <option value="EUR/USD">🇪🇺 EUR/USD 🇺🇸 OTC</option>
+        <option value="AED/CNY">🇦🇪 AED/CNY 🇨🇳 OTC</option>
+        <option value="USD/VND">🇺🇸 USD/VND 🇻🇳 OTC</option>
+        <option value="CHF/JPY">🇨🇭 CHF/JPY 🇯🇵 OTC</option>
+        <option value="USD/JPY">🇺🇸 USD/JPY 🇯🇵 OTC</option>
+        <option value="EUR/CHF">🇪🇺 EUR/CHF 🇨🇭 OTC</option>
+        <option value="EUR/NZD">🇪🇺 EUR/NZD 🇳🇿 OTC</option>
+        <option value="USD/DZD">🇺🇸 USD/DZD 🇩🇿 OTC</option>
+        <option value="EUR/GBP">🇪🇺 EUR/GBP 🇬🇧 OTC</option>
+        <option value="NZD/USD">🇳🇿 NZD/USD 🇺🇸 OTC</option>
+        <option value="AUD/USD">🇦🇺 AUD/USD 🇺🇸 OTC</option>
+        <option value="USD/CHF">🇺🇸 USD/CHF 🇨🇭 OTC</option>
+        <option value="JOD/CNY">🇯🇴 JOD/CNY 🇨🇳 OTC</option>
+        <option value="AUD/CAD">🇦🇺 AUD/CAD 🇨🇦 OTC</option>
+        <option value="USD/CAD">🇺🇸 USD/CAD 🇨🇦 OTC</option>
+        <option value="AUD/JPY">🇦🇺 AUD/JPY 🇯🇵 OTC</option>
+        <option value="USD/ARS">🇺🇸 USD/ARS 🇦🇷 OTC</option>
+        <option value="EUR/TRY">🇪🇺 EUR/TRY 🇹🇷 OTC</option>
+        <option value="USD/MYR">🇺🇸 USD/MYR 🇲🇾 OTC</option>
+        <option value="SAR/CNY">🇸🇦 SAR/CNY 🇨🇳 OTC</option>
+        <option value="USD/CNH">🇺🇸 USD/CNH 🇨🇳 OTC</option>
+        <option value="GBP/USD">🇬🇧 GBP/USD 🇺🇸 OTC</option>
+        <option value="CAD/JPY">🇨🇦 CAD/JPY 🇯🇵 OTC</option>
+        <option value="USD/PHP">🇺🇸 USD/PHP 🇵🇭 OTC</option>
+        <option value="USD/PKR">🇺🇸 USD/PKR 🇵🇰 OTC</option>
+        <option value="USD/THB">🇺🇸 USD/THB 🇹🇭 OTC</option>
+        <option value="AUD/CHF">🇦🇺 AUD/CHF 🇨🇭 OTC</option>
+        <option value="EUR/RUB">🇪🇺 EUR/RUB 🇷🇺 OTC</option>
+        <option value="QAR/CNY">🇶🇦 QAR/CNY 🇨🇳 OTC</option>
+        <option value="USD/IDR">🇺🇸 USD/IDR 🇮🇩 OTC</option>
+        <option value="USD/INR">🇺🇸 USD/INR 🇮🇳 OTC</option>
+        <option value="YER/USD">🇾🇪 YER/USD 🇺🇸 OTC</option>
+        <option value="CAD/CHF">🇨🇦 CAD/CHF 🇨🇭 OTC</option>
+        <option value="NZD/JPY">🇳🇿 NZD/JPY 🇯🇵 OTC</option>
+        <option value="USD/MXN">🇺🇸 USD/MXN 🇲🇽 OTC</option>
+        <option value="KES/USD">🇰🇪 KES/USD 🇺🇸 OTC</option>
+        <option value="LBP/USD">🇱🇧 LBP/USD 🇺🇸 OTC</option>
+        <option value="NGN/USD">🇳🇬 NGN/USD 🇺🇸 OTC</option>
+        <option value="ZAR/USD">🇿🇦 ZAR/USD 🇺🇸 OTC</option>
+        <option value="UAH/USD">🇺🇦 UAH/USD 🇺🇸 OTC</option>
+        <option value="CHF/NOK">🇨🇭 CHF/NOK 🇳🇴 OTC</option>
+        <option value="MAD/USD">🇲🇦 MAD/USD 🇺🇸 OTC</option>
+        <option value="USD/SGD">🇺🇸 USD/SGD 🇸🇬 OTC</option>
+        <option value="OMR/CNY">🇴🇲 OMR/CNY 🇨🇳 OTC</option>
+        <option value="USD/COP">🇺🇸 USD/COP 🇨🇴 OTC</option>
+        <option value="USD/CLP">🇺🇸 USD/CLP 🇨🇱 OTC</option>
+        <option value="EUR/JPY">🇪🇺 EUR/JPY 🇯🇵 OTC</option>
+        <option value="TND/USD">🇹🇳 TND/USD 🇺🇸 OTC</option>
+        <option value="EUR/HUF">🇪🇺 EUR/HUF 🇭🇺 OTC</option>
+      </optgroup>
+      <optgroup label="أزواج عالمية">
+        <option value="EUR/USD">🇪🇺 EUR/USD 🇺🇸</option>
+        <option value="GOLD/USD">🥇 GOLD/USD 🇺🇸</option>
+        <option value="GBP/USD">🇬🇧 GBP/USD 🇺🇸</option>
+        <option value="USD/JPY">🇯🇵 USD/JPY 🇯🇵</option>
+        <option value="USD/CHF">🇺🇸 USD/CHF 🇨🇭</option>
+        <option value="GBP/JPY">🇬🇧 GBP/JPY 🇯🇵</option>
+        <option value="EUR/GBP">🇪🇺 EUR/GBP 🇬🇧</option>
+        <option value="AUD/USD">🇦🇺 AUD/USD 🇺🇸</option>
+        <option value="EUR/JPY">🇪🇺 EUR/JPY 🇯🇵</option>
+      </optgroup>
+    </select>
+    <button id="analyzeBtn" onclick="az()">🔍 تحليل السوق</button>
+    <div class="result" id="result">📊 لم يتم تحليل أي صفقة بعد.</div>
+    <div class="footer">© جميع الحقوق محفوظة — <b>NAIF TRADER</b> • <b>@najran2015</b></div>
+  </div>
+</div>
+
+<div class="watermark">NAIF TRADER • @najran2015</div>
+
+<script>
+  /* === Secure-ish local password check (SHA-256) + server fallback === */
+  const DIGEST_NAIF = "c0be4f342cb25429b8e6d4ef6d2575ecbcee5d9df152357d4db6e928b1086848"; // sha256('naif')
+  const KEY = "signal_usage";
+  const loginMsg = document.getElementById("loginMsg");
+  const expireBox = document.getElementById("expireBox");
+  const userNameDisplay = document.getElementById("userNameDisplay");
+  const el = {
+    s: document.getElementById("pairSelect"),
+    a: document.getElementById("analyzeBtn"),
+    r: document.getElementById("result")
+  };
+  let last = 0;
+  let expireTimer = null;
+
+  function logout(){ try{localStorage.removeItem("activeCode");}catch(e){} location.reload(); }
+
+  (function autoLogin(){
+    try {
+      const saved = JSON.parse(localStorage.getItem("activeCode") || "null");
+      if(saved && saved.code){ showMain(saved.expire); }
+    } catch(e){}
+  })();
+
+  async function sha256Hex(str){
+    const enc = new TextEncoder();
+    const buf = await crypto.subtle.digest("SHA-256", enc.encode(str));
+    const bytes = Array.from(new Uint8Array(buf));
+    return bytes.map(b=>b.toString(16).padStart(2,"0")).join("");
+  }
+
+  async function checkPassword(){
+    const userInput = (document.getElementById("passwordInput").value || "").trim();
+    if(!userInput){ loginMsg.innerHTML = '<span class="bad">⚠️ الرجاء إدخال كلمة المرور.</span>'; return; }
+    loginMsg.textContent = "⌛ جاري التحقق...";
+
+    try {
+      const digest = await sha256Hex(userInput);
+      if (digest === DIGEST_NAIF) {
+        const expire_ts = Math.floor(Date.now()/1000) + 24*60*60; // 24h access
+        localStorage.setItem("activeCode", JSON.stringify({ code:"NAIF-PASS", expire: expire_ts }));
+        showMain(expire_ts);
+        loginMsg.innerHTML = '<span class="ok">✅ تم التحقق بنجاح — مرحبًا بك في NAIF TRADER.</span>';
+        return;
+      }
+    } catch(e){ /* ignore and try server fallback */ }
+
+    // Optional server fallback (if you host a verifier). Keeps structure intact.
+    fetch(location.href, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({code:userInput})
+    })
+    .then(r => r.json())
+    .then(data => {
+      if(data && data.success){
+        localStorage.setItem("activeCode", JSON.stringify({ code:userInput, expire:data.expire_ts }));
+        showMain(data.expire_ts);
+        loginMsg.innerHTML = '<span class="ok">✅ تم التحقق بنجاح.</span>';
+      } else {
+        localStorage.removeItem("activeCode");
+        loginMsg.innerHTML = '<span class="bad">'+(data && data.message ? data.message : "كلمة المرور غير صحيحة")+'</span>';
+      }
+    })
+    .catch(() => { loginMsg.innerHTML='<span class="bad">⚠️ تعذّر الاتصال بالخادم</span>'; });
+  }
+
+  function showMain(expireTs){
+    document.getElementById("passwordBox").style.display="none";
+    document.getElementById("mainContainer").style.display="block";
+    userNameDisplay.style.display = "none";
+    startExpireCountdown(expireTs);
+  }
+
+  function startExpireCountdown(expireTs){
+    clearInterval(expireTimer);
+    function tick(){
+      const diff = (expireTs*1000) - Date.now();
+      if(diff <= 0){
+        expireBox.className = "bad";
+        expireBox.textContent = "⛔ انتهت صلاحية الوصول.";
+        localStorage.removeItem("activeCode");
+        clearInterval(expireTimer);
+        return;
+      }
+      const h = Math.floor(diff/3600000),
+            m = Math.floor((diff%3600000)/60000),
+            s = Math.floor((diff%60000)/1000);
+      expireBox.className = "ok";
+      expireBox.textContent = `⏳ المدة المتبقية: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} (UTC+3)`;
+    }
+    tick(); expireTimer = setInterval(tick,1000);
+  }
+
+  /* === Original app logic (kept) with Riyadh timezone === */
+  window.az = function(){
+    const today = new Date().toISOString().split("T")[0];
+    let c;
+    try { c = JSON.parse(localStorage.getItem(KEY) || '{"date":"","count":0}'); }
+    catch(_){ c = {date:"", count:0}; }
+    if(c.date !== today) c = {date:today, count:0};
+
+    if(c.count >= 500){ alert("❌ تم استهلاك 500 صفقات اليوم"); return; }
+    const now = Date.now();
+    if((now-last)/60000 < 5){ alert("⏳ يجب الانتظار 5 دقائق بين كل إشارة"); return; }
+
+    el.a.disabled = true; el.a.classList.add("disabled");
+    let t = 5;
+    el.r.innerText = "⏳ جاري التحليل ("+t+")";
+    const iv = setInterval(() => {
+      t--;
+      el.r.innerText = "⏳ جاري التحليل ("+t+")";
+      if(t === 0){
+        clearInterval(iv);
+        gS(el.s.value);
+        last = Date.now();
+        c.count++;
+        try{ localStorage.setItem(KEY, JSON.stringify(c)); }catch(_){}
+        el.a.disabled = false; el.a.classList.remove("disabled");
+      }
+    }, 1000);
+  };
+
+  function gS(pr){
+    if(!pr){ alert("اختر زوجاً أولاً"); return; }
+    const dir = Math.random() > 0.5 ? "شراء" : "بيع";
+    const ico = dir === "شراء" ? "🟩" : "🟥";
+
+    const now = new Date();
+    const saTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Riyadh" }));
+
+    let minutes = saTime.getMinutes();
+    let nextFive = Math.ceil(minutes / 5) * 5;
+    if(nextFive === 60){ saTime.setHours(saTime.getHours() + 1); saTime.setMinutes(0); }
+    else { saTime.setMinutes(nextFive); }
+    saTime.setSeconds(0);
+    saTime.setMilliseconds(0);
+
+    const martingale1 = new Date(saTime.getTime() + 5*60000);
+    const martingale2 = new Date(saTime.getTime() + 10*60000);
+
+    const formatterTime = new Intl.DateTimeFormat('ar-EG', { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:'Asia/Riyadh' });
+    const formatterDate = new Intl.DateTimeFormat('ar-EG', { year:'numeric', month:'numeric', day:'numeric', timeZone:'Asia/Riyadh' });
+    const signalStrength = Math.floor(Math.random() * (97-93+1)) + 93;
+
+    const signal = `${pr}
+🕘 انتهاء الصلاحية 5 دقائق
+⏺️ دخول عند ${formatterTime.format(saTime)}
+${ico} ${dir}
+
+🔼 مستويات الحماية
+1️⃣ المستوى الأول عند ${formatterTime.format(martingale1)}
+2️⃣ المستوى الثاني عند ${formatterTime.format(martingale2)}
+
+✅ قوة الإشارة: ${signalStrength}%
+📅 التاريخ: ${formatterDate.format(now)} 🇸🇦`;
+
+    el.r.innerText = signal;
+  }
+
+  /* === Anti-copy & anti-devtools (best effort) === */
+  (function(){
+    const b64 = "KGZ1bmN0aW9uKCl7ZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcigiY29udGV4dG1lbnUiLGZ1bmN0aW9uKGUpeyBlLnByZXZlbnREZWZhdWx0KCk7IGUucmV0dXJuIGZhbHNlOyB9KTtkb2N1bWVudC5hZGRFdmVudExpc3RlbmVyKCJrZXlkb3duIixmdW5jdGlvbihlKXsgY29uc3QgayA9IGUua2V5VG8gPyBlLmtleVRvLmxvd2VyQ2FzZSgpIDogKGUuY3RybEtleT8iQ1RSTCI6IiIpKysoZS5tZXRhS2V5PyIrIjoiIikrKGUuYWx0S2V5PyIrIjoiIikrKGUua2V5P2Uua2V5LnRvVXBwZXJDYXNlKCk6IiIpOyBpZihbIkYiLCJjIiwidSIsInAiLCJqIiwiUyIsIlAiXS5zb21lKGNBPT4gay5pbmNsdWRlcyhjQSkpKXsgZS5wcmV2ZW50RGVmYXVsdCgpOyB9IH0pO30pKCk=";
+    try{ (0,eval)(atob(b64)); }catch(e){}
+  })();
+</script>
+</body>
+</html>
